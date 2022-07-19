@@ -35,7 +35,7 @@ def partial_BS(p, d, x): #partial_block_marchack
     enotd = []
     for i in range(1,len(notd)+1):# 3 is the mimial size
         enotd = enotd+list(it.combinations(notd,i))
-    enotd = [list(x) for x in enotd]
+    enotd = [[]] + [list(x) for x in enotd]  # The empty list is necessary. Check the definition of BS polynomials again.
     for e in [sorted(d+x) for x in enotd if len(x)+len(d) != 3]:
         summand = rho(p,e,x)*((-1)**(len(e)-len(d)))
         out += summand
@@ -47,8 +47,9 @@ def BS(p, d, x):
     enotd = []
     for i in range(1,len(notd)+1):# 3 is the mimial size
         enotd = enotd+list(it.combinations(notd,i))
-    enotd = [list(x) for x in enotd]
-    for e in [sorted(d+x) for x in enotd if len(x)+len(d) != 3]:
+    enotd = [[]] + [list(x) for x in enotd]  # The empty list is necessary. Check the definition of BS polynomials again.
+    #for e in [sorted(d+x) for x in enotd if len(x)+len(d) != 3]:
+    for e in [sorted(d+x) for x in enotd]:  # No need to ignore choice sets of size 3
         summand = rho(p,e,x)*((-1)**(len(e)-len(d)))
         out += summand
     return out

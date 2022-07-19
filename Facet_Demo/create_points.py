@@ -30,6 +30,19 @@ for i in range(1000):
             rho_d[issue[i]] = weights[i]
         rho[issue] = rho_d
     rhos.append(rho)
+
+# The following makes sure that generated choice functions satisfy r(D3, D4) >= 0
+for i in range(len(rhos)):
+	# i = 0
+	for x in alts:
+		# x = alts[0]
+		issue = [elem for elem in alts if elem != x]
+		weights = np.random.rand(len(issue))
+		weights = weights/np.sum(weights)
+		for y, weight in zip(issue, weights):
+			# y = issue[0]
+			rhos[i][tuple(issue)][y] = rhos[i][tuple(alts)][y] + rhos[i][tuple(alts)][x] * weight
+
 ofile = bz2.BZ2File("points",'wb')
 pickle.dump(rhos, ofile)
 ofile.close()

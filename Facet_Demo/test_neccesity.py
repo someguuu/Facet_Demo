@@ -27,10 +27,10 @@ def partial_BS_star(p, d, a): #partial block marchack without unseparable inform
 
 def satisfies_feasibility_condtitions(point):
     for Y in Y_satisfying_star:
-        if alts in Y and set() not in Y:
-            sum = -1
-        elif alts not in Y and set() in Y:
+        if set(alts) in Y and set() not in Y:
             sum = 1
+        elif set(alts) not in Y and set() in Y:
+            sum = -1
         else:
             sum = 0
         for D in Y:
@@ -38,9 +38,11 @@ def satisfies_feasibility_condtitions(point):
                 if x not in D and x not in unseparables and D.union({x}) not in Y:
                     sum += partial_BS_star(point, sorted(list(D.union({x}))), x)
             for x in D:
-                if D.difference({x}) not in Y:
+                if x not in unseparables and D.difference({x}) not in Y:
                     sum -= partial_BS_star(point, sorted(list(D)), x)
-        if sum < 0:
+        # print(Y)
+        # print(sum)
+        if sum < -10e-15:
             return False
     return True
 
@@ -71,12 +73,12 @@ for pi in orders:
     vertex[tuple(d)] = rho_d
   vertices.append(vertex)
 
-trials = 10
+trials = 1
 not_satisfies_conditions = 0
 for i in range(trials):
-    affine = np.random.normal(size = len(vertices)) 
-    affine = affine/np.sum(affine)
-    point = weight_points(affine, vertices)
+    convex = np.random.rand(len(vertices))
+    convex = convex/(np.sum(convex)) #weights that generate random utility 
+    point = weight_points(convex, vertices)
     if not satisfies_feasibility_condtitions(point):
         not_satisfies_conditions += 1
 print("Checking random utility model (the number should be close to 0 if the condition is necessary): {}".format(not_satisfies_conditions/trials))

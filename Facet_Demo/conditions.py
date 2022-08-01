@@ -29,28 +29,28 @@ def weight_points(coefs, vertices):
 def is_subset(superset, subset):
     return all(item in superset for item in subset)
 
-def partial_BS(p, d, x): #partial_block_marchack
+def partial_BS(p, d, a): #partial_block_marchack
     out = 0
     notd = [x for x in alts if x not in d]
     enotd = []
-    for i in range(1,len(notd)+1):# 3 is the mimial size
+    for i in range(0,len(notd)+1):# 3 is the mimial size
         enotd = enotd+list(it.combinations(notd,i))
-    enotd = [[]] + [list(x) for x in enotd]  # The empty list is necessary. Check the definition of BS polynomials again.
+    enotd = [list(x) for x in enotd]  # The empty list is necessary. Check the definition of BS polynomials again.
     for e in [sorted(d+x) for x in enotd if len(x)+len(d) != 3]:
-        summand = rho(p,e,x)*((-1)**(len(e)-len(d)))
+        summand = rho(p,e,a)*((-1)**(len(e)-len(d)))
         out += summand
     return out
 
-def BS(p, d, x):
+def BS(p, d, a):
     out = 0
     notd = [x for x in alts if x not in d]
     enotd = []
-    for i in range(1,len(notd)+1):# 3 is the mimial size
+    for i in range(0,len(notd)+1):# 3 is the mimial size
         enotd = enotd+list(it.combinations(notd,i))
-    enotd = [[]] + [list(x) for x in enotd]  # The empty list is necessary. Check the definition of BS polynomials again.
+    enotd = [list(x) for x in enotd]  # The empty list is necessary. Check the definition of BS polynomials again.
     #for e in [sorted(d+x) for x in enotd if len(x)+len(d) != 3]:
     for e in [sorted(d+x) for x in enotd]:  # No need to ignore choice sets of size 3
-        summand = rho(p,e,x)*((-1)**(len(e)-len(d)))
+        summand = rho(p,e,a)*((-1)**(len(e)-len(d)))
         out += summand
     return out
 
@@ -162,16 +162,21 @@ def try_conditions(points, conditions):
         #     print(weight_points(affine, vertices))
     return {"inside" : counterexamples, "outside": negativek, "satisfiesbs": satisfiesbs}
 
-conditions = [inflow_outflow, upper_bounds_ineq, lower_bounds_ineq, upper_lower_equality, lower_upper_equality, BS_size_3_all_nonneg]
-#conditions = [upper_lower_equality]
-#conditions = [inflow_outflow]
-#print(try_conditions(trials, conditions))
-#result = try_conditions(trials, [inflow_outflow, upper_bounds_ineq, lower_bounds_ineq])
-# result = try_conditions(trials, [lower_upper_equality, upper_lower_equality])
-ifile = bz2.BZ2File("points",'rb')
-points = pickle.load(ifile)
-ifile.close()
-result = try_conditions(points, conditions)
-#print("Checking random utility model (the number should be close to 0 if the condition is necessary): {}".format(result["inside"]/trials))
-print("Checking non-random utility (the number should be close to 1 if the condition is sufficient): {}".format((result["outside"]-result["satisfiesbs"])/(len(points)-result["satisfiesbs"])))
-print(result)
+# conditions = [inflow_outflow, upper_bounds_ineq, lower_bounds_ineq, upper_lower_equality, lower_upper_equality]
+# #conditions = [inflow_outflow]
+# # conditions = [inflow_outflow]
+# # conditions = [BS_size_3_all_nonneg]
+# #print(try_conditions(trials, conditions))
+# #result = try_conditions(trials, [inflow_outflow, upper_bounds_ineq, lower_bounds_ineq])
+# # result = try_conditions(trials, [lower_upper_equality, upper_lower_equality])
+# ifile = bz2.BZ2File("points",'rb')
+# points = pickle.load(ifile)
+# ifile.close()
+# # ifile = bz2.BZ2File("Y_satisfying_star",'rb')
+# # Y_satisfying_star = pickle.load(ifile)
+# # ifile.close()
+# # print(len(Y))
+# result = try_conditions(points, conditions)
+# #print("Checking random utility model (the number should be close to 0 if the condition is necessary): {}".format(result["inside"]/trials))
+# print("Checking non-random utility (the number should be close to 1 if the condition is sufficient): {}".format((result["outside"]-result["satisfiesbs"])/(len(points)-result["satisfiesbs"])))
+# print(result)

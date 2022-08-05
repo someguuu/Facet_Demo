@@ -4,6 +4,10 @@ import pickle
 import bz2
 
 unseparables = [1,2]
+# subsets_of_unseparables = []
+# for i in range(0,len(unseparables)+1):
+#     subsets_of_unseparables = subsets_of_unseparables + list(it.combinations(unseparables,i))
+# subsets_of_unseparables = [set(x) for x in subsets_of_unseparables]
 num_alts = 5
 alts = [x+1 for x in range(num_alts)]
 choice_set = []
@@ -185,26 +189,55 @@ def partial_BS_star(p, d, a): #partial block marchack without unseparable inform
         out += summand
     return out
 
+def calculate_feasibility_condition(point, Y):
+    if set(alts) in Y and set() not in Y:
+        sum = 1
+    elif set(alts) not in Y and set() in Y:
+        sum = -1
+    else:
+        sum = 0
+    for D in Y:
+        for x in alts:
+            if x not in D and x not in unseparables and D.union({x}) not in Y:
+                sum += partial_BS_star(point, sorted(list(D.union({x}))), x)
+        for x in D:
+            if x not in unseparables and D.difference({x}) not in Y:
+                sum -= partial_BS_star(point, sorted(list(D)), x)
+    return sum
+
 def satisfies_feasibility_condtitions(point, Y_satisfying_star):
     for Y in Y_satisfying_star:
-        if set(alts) in Y and set() not in Y:
-            sum = 1
-        elif set(alts) not in Y and set() in Y:
-            sum = -1
-        else:
-            sum = 0
-        for D in Y:
-            for x in alts:
-                if x not in D and x not in unseparables and D.union({x}) not in Y:
-                    sum += partial_BS_star(point, sorted(list(D.union({x}))), x)
-            for x in D:
-                if x not in unseparables and D.difference({x}) not in Y:
-                    sum -= partial_BS_star(point, sorted(list(D)), x)
-        # print(Y)
-        # print(sum)
+        sum = calculate_feasibility_condition(point, Y)
         if sum < -10e-15:
             return False
     return True
+
+def check_redundancy(points, Y_satisfying_star, example_Y, threshold):
+    return check_redundancy_helper(iter(points), Y_satisfying_star, example_Y, len(Y_satisfying_star), 0, threshold)
+
+def check_redundancy_helper(points_iter, redundant_Y, example_Y, best, record, threshold):
+    if record > threshold:
+        return redundant_Y
+    point = next(points_iter)
+    new_redundant_Y = []
+    example_result = calculate_feasibility_condition(point, example_Y) < -10e-15
+    for Y in redundant_Y:
+        if (calculate_feasibility_condition(point, Y) < -10e-15) == example_result:
+            new_redundant_Y.append(Y)
+    if len(new_redundant_Y) < best:
+        best = len(new_redundant_Y)
+        record = 0
+    else:
+        record += 1
+    return check_redundancy_helper(points_iter, new_redundant_Y, example_Y, best, record, threshold)
+
+def reduce_to_generator(Y):
+    for D in reversed(sorted(Y, key = len)):
+        for x in unseparables:
+            if x in D and D.difference({x}) in Y and D in Y:
+                Y.remove(D)
+    return Y
+
 
 # conditions = [inflow_outflow, upper_bounds_ineq, lower_bounds_ineq, upper_lower_equality, lower_upper_equality]
 # #conditions = [inflow_outflow]

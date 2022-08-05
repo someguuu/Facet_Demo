@@ -18,7 +18,7 @@ for i in range(1,num_alts+1):
     choice_set = choice_set + list(it.combinations(alts,i))
 print(choice_set[0])
 rhos = []
-for i in range(10000):
+for i in range(100000):
     if i%100000 == 0:
         print(str(i/100000)+"%")
     rho = {}
